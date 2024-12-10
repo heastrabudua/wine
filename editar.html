@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Vino</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .image-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .otro-input {
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="nav-buttons mb-4">
+            <a href="index.html" class="btn btn-secondary">Inicio</a>
+            <a href="ver.html" class="btn btn-secondary">Ver Vinos</a>
+            <a href="agregar.html" class="btn btn-primary">Agregar Vino</a>
+        </div>
+
+        <h2>Editar Vino</h2>
+        
+        <form id="editarVinoForm">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bodega">Bodega:</label>
+                <input type="text" id="bodega" class="form-control" required>
+            </div>
+
+            <!-- Copiar aquí la misma estructura de selección de uvas que en agregar.html -->
+            
+            <div class="form-group">
+                <label for="region">Región:</label>
+                <select id="region" class="form-control" onchange="mostrarOtroInput(this, 'otraRegionTexto')">
+                    <option value="">Seleccione una región</option>
+                    <option value="Rioja">Rioja</option>
+                    <option value="Ribera del Duero">Ribera del Duero</option>
+                    <option value="Priorat">Priorat</option>
+                    <option value="Ribeira Sacra">Ribeira Sacra</option>
+                    <option value="Rías Baixas">Rías Baixas</option>
+                    <option value="otro">Otra región</option>
+                </select>
+                <input type="text" id="otraRegionTexto" class="otro-input" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label for="pais">País:</label>
+                <select id="pais" class="form-control" onchange="mostrarOtroInput(this, 'otroPaisTexto')">
+                    <option value="">Seleccione un país</option>
+                    <option value="España">España</option>
+                    <option value="Francia">Francia</option>
+                    <option value="Italia">Italia</option>
+                    <option value="Portugal">Portugal</option>
+                    <option value="otro">Otro país</option>
+                </select>
+                <input type="text" id="otroPaisTexto" class="otro-input" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label for="anio">Año:</label>
+                <input type="number" id="anio" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Tipo de Vino:</label>
+                <select id="tipo" class="form-control" onchange="mostrarOtroInput(this, 'otroTipoTexto')">
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Tinto">Tinto</option>
+                    <option value="Blanco">Blanco</option>
+                    <option value="Rosado">Rosado</option>
+                    <option value="Espumoso">Espumoso</option>
+                    <option value="otro">Otro tipo</option>
+                </select>
+                <input type="text" id="otroTipoTexto" class="otro-input" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label for="precioCompra">Precio de Compra (€):</label>
+                <input type="number" id="precioCompra" class="form-control" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="precio">Precio de Venta (€):</label>
+                <input type="number" id="precio" class="form-control" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="foto">Foto del Vino:</label>
+                <input type="file" id="foto" accept="image/*" class="form-control" onchange="previewImage(this);">
+                <div id="imagePreview" class="image-preview"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="ver.html" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+
+    <script>
+        let vinoIndex;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Obtener el ID del vino de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            vinoIndex = urlParams.get('id');
+            
+            if (vinoIndex === null) {
+                alert('No se especificó un vino para editar');
+                window.location.href = 'ver.html';
+                return;
+            }
+
+            // Cargar los datos del vino
+            const vinos = JSON.parse(localStorage.getItem('vinos')) || [];
+            const vino = vinos[vinoIndex];
+            
+            if (!vino) {
+                alert('Vino no encontrado');
+                window.location.href = 'ver.html';
+                return;
+            }
+
+            // Rellenar el formulario
+            document.getElementById('nombre').value = vino.nombre;
+            document.getElementById('bodega').value = vino.bodega;
+            document.getElementById('anio').value = vino.anio;
+            document.getElementById('precioCompra').value = vino.precioCompra.replace('€', '');
+            document.getElementById('precio').value = vino.precio.replace('€', '');
+
+            // Manejar campos con opción "otro"
+            function setSelectOrOtro(selectId, otroInputId, valor) {
+                const select = document.getElementById(selectId);
+                const otroInput = document.getElementById(otroInputId);
+                
+                if ([...select.options].some(opt => opt.value === valor)) {
+                    select.value = valor;
+                } else {
+                    select.value = 'otro';
+                    otroInput.style.display = 'block';
+                    otroInput.value = valor;
+                }
+            }
+
+            setSelectOrOtro('region', 'otraRegionTexto', vino.region);
+            setSelectOrOtro('pais', 'otroPaisTexto', vino.pais);
+            setSelectOrOtro('tipo', 'otroTipoTexto', vino.tipo);
+
+            // Mostrar la imagen si existe
+            if (vino.foto) {
+                const preview = document.getElementById('imagePreview');
+                preview.style.display = 'block';
+                preview.innerHTML = `<img src="${vino.foto}" alt="Foto del vino">`;
+            }
+        });
+
+        // Función para mostrar/ocultar campos de "otro"
+        function mostrarOtroInput(selectElement, inputId) {
+            const otroInput = document.getElementById(inputId);
+            otroInput.style.display = selectElement.value === 'otro' ? 'block' : 'none';
+            if (selectElement.value !== 'otro') {
+                otroInput.value = '';
+            }
+        }
+
+        // Función para previsualizar la imagen
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.style.display = 'block';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Manejar el envío del formulario
+        document.getElementById('editarVinoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const vinos = JSON.parse(localStorage.getItem('vinos')) || [];
+            
+            // Función para obtener el valor correcto (seleccionado o escrito)
+            const getValor = (selectId, otroInputId) => {
+                const select = document.getElementById(selectId);
+                return select.value === 'otro' ? 
+                    document.getElementById(otroInputId).value : 
+                    select.value;
+            };
+
+            // Procesar la imagen
+            const fotoInput = document.getElementById('foto');
+            const vino = vinos[vinoIndex];
+            
+            if (fotoInput.files && fotoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    vino.foto = reader.result;
+                    actualizarVino();
+                };
+                reader.readAsDataURL(fotoInput.files[0]);
+            } else {
+                actualizarVino();
+            }
+
+            function actualizarVino() {
+                vino.nombre = document.getElementById('nombre').value;
+                vino.bodega = document.getElementById('bodega').value;
+                vino.region = getValor('region', 'otraRegionTexto');
+                vino.pais = getValor('pais', 'otroPaisTexto');
+                vino.anio = document.getElementById('anio').value;
+                vino.tipo = getValor('tipo', 'otroTipoTexto');
+                vino.precioCompra = document.getElementById('precioCompra').value + '€';
+                vino.precio = document.getElementById('precio').value + '€';
+
+                localStorage.setItem('vinos', JSON.stringify(vinos));
+                alert('Vino actualizado correctamente');
+                window.location.href = 'ver.html';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Vinos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .vino-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .vino-thumbnail:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80vh;
+            margin-top: 50px;
+        }
+
+        .close {
+            position: absolute;
+            right: 25px;
+            top: 10px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            margin-bottom: 20px;
+        }
+        
+        .nav-buttons .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Botones de navegación -->
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-secondary">Inicio</a>
+            <a href="agregar.html" class="btn btn-primary">Agregar Vino</a>
+        </div>
+
+        <h2>Lista de Vinos</h2>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>Nombre</th>
+                    <th>Bodega</th>
+                    <th>Uva</th>
+                    <th>Región</th>
+                    <th>País</th>
+                    <th>Año</th>
+                    <th>Tipo</th>
+                    <th>Precio Compra</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las filas se generarán dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para la imagen -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <script>
+        function mostrarVinos() {
+            const tbody = document.querySelector('tbody');
+            const vinos = JSON.parse(localStorage.getItem('vinos')) || [];
+            
+            tbody.innerHTML = '';
+            
+            vinos.forEach((vino, index) => {
+                const tr = document.createElement('tr');
+                
+                // Celda de la foto
+                const tdFoto = document.createElement('td');
+                if (vino.foto) {
+                    const img = document.createElement('img');
+                    img.src = vino.foto;
+                    img.className = 'vino-thumbnail';
+                    img.onclick = () => abrirModal(vino.foto);
+                    tdFoto.appendChild(img);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = 'assets/default-wine.png';
+                    img.className = 'vino-thumbnail';
+                    tdFoto.appendChild(img);
+                }
+                tr.appendChild(tdFoto);
+
+                // Resto de las celdas
+                tr.innerHTML += `
+                    <td>${vino.nombre}</td>
+                    <td>${vino.bodega}</td>
+                    <td>${vino.uva}</td>
+                    <td>${vino.region}</td>
+                    <td>${vino.pais}</td>
+                    <td>${vino.anio}</td>
+                    <td>${vino.tipo}</td>
+                    <td>${vino.precioCompra}</td>
+                    <td>${vino.precio}</td>
+                    <td>
+                        <a href="editar.html?id=${index}" class="btn btn-sm btn-primary">Editar</a>
+                        <button onclick="eliminarVino(${index})" class="btn btn-sm btn-danger">Eliminar</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModal(imgSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImg');
+            modal.style.display = "block";
+            modalImg.src = imgSrc;
+        }
+
+        function editarVino(index) {
+            window.location.href = `editar.html?id=${index}`;
+        }
+
+        function eliminarVino(index) {
+            if (confirm('¿Estás seguro de que quieres eliminar este vino?')) {
+                let vinos = JSON.parse(localStorage.getItem('vinos')) || [];
+                vinos.splice(index, 1);
+                localStorage.setItem('vinos', JSON.stringify(vinos));
+                mostrarVinos();
+            }
+        }
+
+        // Cerrar modal
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('imageModal').style.display = "none";
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('imageModal').onclick = function(e) {
+            if (e.target === this) {
+                this.style.display = "none";
+            }
+        }
+
+        // Cargar los vinos al iniciar
+        document.addEventListener('DOMContentLoaded', mostrarVinos);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Vinos</title>
+    <style>
+        .nav-buttons {
+            margin: 20px 0;
+        }
+        .nav-buttons a {
+            padding: 10px 20px;
+            background-color: #800020;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .form-container {
+            margin: 20px 0;
+            max-width: 600px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #800020;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #600018;
+        }
+        .dropdown-check-list {
+            display: inline-block;
+            width: 100%;
+        }
+
+        .dropdown-check-list .anchor {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .dropdown-check-list .anchor:after {
+            position: absolute;
+            content: "";
+            border-left: 2px solid black;
+            border-top: 2px solid black;
+            padding: 3px;
+            right: 10px;
+            top: 35%;
+            transform: rotate(-135deg);
+        }
+
+        .dropdown-check-list ul.items {
+            padding: 2px;
+            display: none;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+            position: absolute;
+            background: white;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .dropdown-check-list.visible .items {
+            display: block;
+        }
+
+        .dropdown-check-list ul.items li {
+            list-style: none;
+            padding: 5px 10px;
+        }
+
+        .dropdown-check-list ul.items li.header {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        .dropdown-check-list ul.items li.divider {
+            border-top: 1px solid #ccc;
+            margin: 5px 0;
+            padding: 0;
+        }
+
+        .dropdown-check-list input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .otro-input {
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .header {
+            color: #800020;
+            font-weight: bold;
+            padding: 5px 10px;
+        }
+
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 5px 0;
+        }
+
+        .checkbox-item {
+            padding: 5px 10px;
+        }
+
+        .checkbox-item input[type="text"] {
+            margin-left: 25px;
+            margin-top: 5px;
+        }
+
+        select[multiple] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        optgroup {
+            font-weight: bold;
+            color: #800020;
+        }
+        
+        option {
+            padding: 5px;
+            margin: 2px 0;
+        }
+
+        /* Nuevos estilos para forzar el orden */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            order: 1;
+            margin-right: 8px;
+        }
+
+        .checkbox-wrapper .text {
+            order: 2;
+        }
+
+        /* Asegurar que el checkbox está visible */
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+        }
+
+        .custom-file-upload {
+            margin-bottom: 15px;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 200px;
+            display: none;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-buttons">
+        <a href="index.html">Inicio</a>
+        <a href="ver.html">Ver Catálogo</a>
+    </div>
+
+    <h1>Agregar Nuevo Vino</h1>
+    
+    <div class="form-container">
+        <form id="vinoForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre del Vino:</label>
+                    <input type="text" id="nombre">
+                </div>
+
+                <div class="form-group">
+                    <label for="bodega">Bodega:</label>
+                    <input type="text" id="bodega">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipos de Uva:</label>
+                    <div class="dropdown-check-list" tabindex="100">
+                        <span class="anchor">Seleccionar Uvas</span>
+                        <ul class="items">
+                            <li class="header">Uvas Tintas</li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Tempranillo">
+                                    <span class="text">Tempranillo</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Garnacha">
+                                    <span class="text">Garnacha</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Monastrell">
+                                    <span class="text">Monastrell</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Cabernet Sauvignon">
+                                    <span class="text">Cabernet Sauvignon</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Merlot">
+                                    <span class="text">Merlot</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Syrah">
+                                    <span class="text">Syrah</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Pinot Noir">
+                                    <span class="text">Pinot Noir</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Malbec">
+                                    <span class="text">Malbec</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Carmenere">
+                                    <span class="text">Carmenere</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Sangiovese">
+                                    <span class="text">Sangiovese</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Nebbiolo">
+                                    <span class="text">Nebbiolo</span>
+                                </span>
+                            </li>
+                            
+                            <li class="divider"></li>
+                            <li class="header">Uvas Blancas</li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Albariño">
+                                    <span class="text">Albariño</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Verdejo">
+                                    <span class="text">Verdejo</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Godello">
+                                    <span class="text">Godello</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Chardonnay">
+                                    <span class="text">Chardonnay</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Sauvignon Blanc">
+                                    <span class="text">Sauvignon Blanc</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Riesling">
+                                    <span class="text">Riesling</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Gewürztraminer">
+                                    <span class="text">Gewürztraminer</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Viognier">
+                                    <span class="text">Viognier</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Moscatel">
+                                    <span class="text">Moscatel</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Palomino">
+                                    <span class="text">Palomino</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Pedro Ximénez">
+                                    <span class="text">Pedro Ximénez</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Xarel·lo">
+                                    <span class="text">Xarel·lo</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Parellada">
+                                    <span class="text">Parellada</span>
+                                </span>
+                            </li>
+                            <li class="checkbox-item">
+                                <span class="checkbox-wrapper">
+                                    <input type="checkbox" name="uva" value="Macabeo">
+                                    <span class="text">Macabeo</span>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="region">Región:</label>
+                    <select id="region" class="form-control" onchange="mostrarOtroInput(this, 'otraRegionTexto')">
+                        <option value="">Seleccione una región</option>
+                        <option value="Rioja">Rioja</option>
+                        <option value="Ribera del Duero">Ribera del Duero</option>
+                        <option value="Priorat">Priorat</option>
+                        <option value="Ribeira Sacra">Ribeira Sacra</option>
+                        <option value="Rías Baixas">Rías Baixas</option>
+                        <option value="Rueda">Rueda</option>
+                        <option value="Toro">Toro</option>
+                        <option value="Penedés">Penedés</option>
+                        <option value="otro">Otra región</option>
+                    </select>
+                    <input type="text" id="otraRegionTexto" class="form-control mt-2" placeholder="Especifica la región" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="pais">País:</label>
+                    <select id="pais" class="form-control" onchange="mostrarOtroInput(this, 'otroPaisTexto')">
+                        <option value="">Seleccione un país</option>
+                        <option value="España">España</option>
+                        <option value="Francia">Francia</option>
+                        <option value="Italia">Italia</option>
+                        <option value="Portugal">Portugal</option>
+                        <option value="Alemania">Alemania</option>
+                        <option value="Argentina">Argentina</option>
+                        <option value="Chile">Chile</option>
+                        <option value="otro">Otro país</option>
+                    </select>
+                    <input type="text" id="otroPaisTexto" class="form-control mt-2" placeholder="Especifica el país" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="anio">Año:</label>
+                    <input type="number" id="anio" min="1900" max="2024">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tipo">Tipo de Vino:</label>
+                    <select id="tipo" class="form-control" onchange="mostrarOtroInput(this, 'otroTipoTexto')">
+                        <option value="">Seleccione un tipo</option>
+                        <option value="Tinto">Tinto</option>
+                        <option value="Blanco">Blanco</option>
+                        <option value="Rosado">Rosado</option>
+                        <option value="Espumoso">Espumoso</option>
+                        <option value="Generoso">Generoso</option>
+                        <option value="Dulce">Dulce</option>
+                        <option value="otro">Otro tipo</option>
+                    </select>
+                    <input type="text" id="otroTipoTexto" class="form-control mt-2" placeholder="Especifica el tipo" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="precioCompra">Precio de Compra (€):</label>
+                    <input type="number" id="precioCompra" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="precio">Precio de Venta (€):</label>
+                <input type="number" id="precio" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="foto">Foto del Vino:</label>
+                <div class="custom-file-upload">
+                    <input type="file" id="foto" accept="image/*" class="form-control" onchange="previewImage(this);">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+            </div>
+
+            <button type="submit">Guardar Vino</button>
+        </form>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
